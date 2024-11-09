@@ -1,0 +1,52 @@
+.main {
+  display: flex;
+  margin: auto;
+  padding: 2em;
+}
+
+.table {
+  overflow: auto;
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0 1em;
+  box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.45);
+  background-color: var(--very-dark-desaturated-blue);
+  border-radius: 8px;
+  padding-top: 0.5em;
+}
+
+.table div {
+  display: flex;
+  justify-content: center;
+  padding: 0.5em 0.75em;
+}
+
+.table table {
+  width: 100%;
+  background-color: var(--very-dark-desaturated-blue);
+}
+
+.table tr {
+  border-bottom: 1px solid var(--light-grayish-blue);
+}
+.table tr:last-of-type {
+  border-bottom: none;
+}
+
+.table th {
+  text-align: left;
+  background-color: var(--very-dark-desaturated-blue);
+  position: sticky;
+  top: 0;
+  padding: 0;
+  z-index: 1;
+  &::after {
+    content: "";
+    display: block;
+    height: 2px;
+    background-color: var(--light-grayish-blue);
+    margin-top: 0.5em;
+  }
+}
