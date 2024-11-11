@@ -140,7 +140,7 @@ export default function ScheduleTable() {
     }
     if (isDragging) {
       const deltaY = e.clientY - dragStartY;
-      const newStartTime =
+      let newStartTime =
         Math.round((originalStartTime + (deltaY / 32) * 60) / 15) * 15;
 
       setScheduleBlocks((prev) => {
@@ -148,7 +148,6 @@ export default function ScheduleTable() {
         const blockToMove = newScheduleBlocks.find(
           (item) => item.id === isDragging
         );
-
         if (blockToMove) {
           const isOverlapping = newScheduleBlocks.some((item) => {
             if (item.id === blockToMove.id) return false;
@@ -158,12 +157,12 @@ export default function ScheduleTable() {
               const itemEndTime = item.startTime + item.duration;
 
               if (newStartTime < itemEndTime && blockEndTime > item.startTime) {
-                blockToMove.startTime =
+                newStartTime =
                   newStartTime < item.startTime
                     ? item.startTime - blockToMove.duration
                     : itemEndTime;
 
-                return true;
+                return false;
               }
             }
             return false;
@@ -217,6 +216,38 @@ export default function ScheduleTable() {
     setOriginalStartTime(block.startTime);
     e.preventDefault();
   };
+  const handleCreateBlock = (e: React.MouseEvent, day: string) => {
+    // Calcular la hora de inicio en minutos basándote en la posición del clic
+    const clickY = e.clientY - e.currentTarget.getBoundingClientRect().top - 32;
+    const newStartTime = Math.floor(clickY / 32) * 60; // Ajuste al múltiplo de 60 minutos
+
+    const newBlock: ScheduleBlock = {
+      day,
+      startTime: newStartTime,
+      duration: 60, // Duración por defecto de 60 minutos
+      activity: "bloque",
+      id: `block-${Date.now()}`, // ID único
+    };
+
+    // Verificar si el nuevo bloque se solapa con algún bloque existente
+    const isOverlapping = scheduleBlocks.some((block) => {
+      if (block.day !== newBlock.day) return false; // Comparar solo bloques del mismo día
+
+      const blockEndTime = block.startTime + block.duration;
+      const newBlockEndTime = newBlock.startTime + newBlock.duration;
+
+      // Comprobar si hay solapamiento
+      return (
+        newBlock.startTime < blockEndTime && newBlockEndTime > block.startTime
+      );
+    });
+
+    // Si no hay solapamiento, agregar el nuevo bloque
+    if (!isOverlapping) {
+      setScheduleBlocks((prevBlocks) => [...prevBlocks, newBlock]);
+    }
+  };
+
   return (
     <main className={styles.main}>
       <div
@@ -230,7 +261,11 @@ export default function ScheduleTable() {
         }}
       >
         {tableHeaderRow.map((row) => (
-          <div key={row} className={styles.row}>
+          <div
+            onClick={(e) => handleCreateBlock(e, row)}
+            key={row}
+            className={styles.row}
+          >
             <div className={styles.rowHeader}>{row}</div>
             {row === "Hora" &&
               tableHourColumn.map((hour) => (
@@ -264,6 +299,7 @@ export default function ScheduleTable() {
                   </div>
                 )
             )}
+            <div></div>
           </div>
         ))}
       </div>
