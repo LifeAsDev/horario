@@ -158,6 +158,11 @@ export default function ScheduleTable() {
               const itemEndTime = item.startTime + item.duration;
 
               if (newStartTime < itemEndTime && blockEndTime > item.startTime) {
+                blockToMove.startTime =
+                  newStartTime < item.startTime
+                    ? item.startTime - blockToMove.duration
+                    : itemEndTime;
+
                 return true;
               }
             }
@@ -251,7 +256,7 @@ export default function ScheduleTable() {
                     />
                     <div
                       style={{
-                        cursor: isDragging ? "grabbing" : "grab",
+                        cursor: isDragging ? "grabbing" : "grab ",
                       }}
                       className={styles.dragHandler}
                       onMouseDown={(e) => handleDragStart(e, block)}
