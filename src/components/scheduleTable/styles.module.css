@@ -60,9 +60,17 @@
 
 .rezizeHandler {
   width: calc(100% + 8px);
-  height: 10px;
+  height: 4px;
   position: absolute;
   bottom: -4px;
   left: -4px;
   cursor: ns-resize;
+}
+.dragHandler {
+  width: calc(100%);
+  height: calc(100% + 4px);
+  position: absolute;
+  top: -4px;
+  left: 0;
+  cursor: grab;
 }

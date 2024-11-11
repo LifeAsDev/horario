@@ -37,6 +37,9 @@ export default function ScheduleTable() {
   const [isResizing, setIsResizing] = useState<false | string>(false);
   const [startY, setStartY] = useState(0);
   const [startHeight, setStartHeight] = useState(200); // Altura inicial en el momento del clic
+  const [isDragging, setIsDragging] = useState<false | string>(false);
+  const [dragStartY, setDragStartY] = useState(0);
+  const [originalStartTime, setOriginalStartTime] = useState(0);
   const SNAP_SIZE = 8; // Tamaño de snap en píxeles
   const MIN_SIZE = 8;
 
@@ -135,16 +138,50 @@ export default function ScheduleTable() {
 
       setHeight(snappedHeight);
     }
+    if (isDragging) {
+      const deltaY = e.clientY - dragStartY;
+      const newStartTime =
+        Math.round((originalStartTime + (deltaY / 32) * 60) / 15) * 15;
+
+      setScheduleBlocks((prev) => {
+        const newScheduleBlocks = [...prev];
+        const blockToMove = newScheduleBlocks.find(
+          (item) => item.id === isDragging
+        );
+
+        if (blockToMove) {
+          const isOverlapping = newScheduleBlocks.some((item) => {
+            if (item.id === blockToMove.id) return false;
+
+            if (item.day === blockToMove.day) {
+              const blockEndTime = newStartTime + blockToMove.duration;
+              const itemEndTime = item.startTime + item.duration;
+
+              if (newStartTime < itemEndTime && blockEndTime > item.startTime) {
+                return true;
+              }
+            }
+            return false;
+          });
+
+          if (!isOverlapping && newStartTime >= 0 && newStartTime <= 960) {
+            blockToMove.startTime = newStartTime;
+          }
+        }
+        return newScheduleBlocks;
+      });
+    }
   };
 
   // Manejador para detener el resizing
   const handleMouseUp = () => {
     setIsResizing(false);
+    setIsDragging(false);
   };
 
   // Agregar y remover listeners de mouse cuando sea necesario
   useEffect(() => {
-    if (isResizing) {
+    if (isResizing || isDragging) {
       window.addEventListener("mousemove", handleMouseMove);
       window.addEventListener("mouseup", handleMouseUp);
     } else {
@@ -156,7 +193,7 @@ export default function ScheduleTable() {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [isResizing]);
+  }, [isResizing, isDragging]);
 
   const convertDurationToHeight = (duration: number): number => {
     return (duration / 60) * 32; // 32px por cada 60 minutos
@@ -169,12 +206,23 @@ export default function ScheduleTable() {
     console.log((hours - 8) * 60 + minutes);
     return (hours - 8) * 60 + minutes; // Resta 8 horas para que comience desde 08:00 AM
   };
-
+  const handleDragStart = (e: React.MouseEvent, block: ScheduleBlock) => {
+    setIsDragging(block.id);
+    setDragStartY(e.clientY);
+    setOriginalStartTime(block.startTime);
+    e.preventDefault();
+  };
   return (
     <main className={styles.main}>
       <div
         className={styles.table}
-        style={{ cursor: isResizing ? "ns-resize" : "default" }}
+        style={{
+          cursor: isResizing
+            ? "ns-resize"
+            : isDragging
+            ? "grabbing"
+            : "default",
+        }}
       >
         {tableHeaderRow.map((row) => (
           <div key={row} className={styles.row}>
@@ -200,6 +248,13 @@ export default function ScheduleTable() {
                     <div
                       className={styles.rezizeHandler}
                       onMouseDown={(e) => handleMouseDown(e, block)}
+                    />
+                    <div
+                      style={{
+                        cursor: isDragging ? "grabbing" : "grab",
+                      }}
+                      className={styles.dragHandler}
+                      onMouseDown={(e) => handleDragStart(e, block)}
                     />
                   </div>
                 )
