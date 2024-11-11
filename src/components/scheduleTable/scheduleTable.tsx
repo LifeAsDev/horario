@@ -108,6 +108,16 @@ export default function ScheduleTable() {
                 blockToResize.startTime < itemEndTime &&
                 blockEndTime > item.startTime
               ) {
+                // Calcular la duración máxima permitida antes de solaparse con `item`
+                const maxAllowedDuration =
+                  item.startTime - blockToResize.startTime;
+
+                // Ajustar el bloque para que no se solape
+                blockToResize.duration = Math.min(
+                  newDuration,
+                  maxAllowedDuration
+                );
+
                 return true;
               }
             }
