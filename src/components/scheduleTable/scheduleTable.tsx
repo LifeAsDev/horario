@@ -247,6 +247,12 @@ export default function ScheduleTable() {
       setScheduleBlocks((prevBlocks) => [...prevBlocks, newBlock]);
     }
   };
+  // Función para manejar la eliminación de un bloque específico
+  const handleDeleteBlock = (blockId: string) => {
+    setScheduleBlocks((prevBlocks) =>
+      prevBlocks.filter((block) => block.id !== blockId)
+    );
+  };
 
   return (
     <main className={styles.main}>
@@ -282,6 +288,10 @@ export default function ScheduleTable() {
                     style={{
                       height: convertDurationToHeight(block.duration),
                       top: 32 + convertDurationToHeight(block.startTime),
+                    }}
+                    onContextMenu={(e) => {
+                      e.preventDefault(); // Prevenir el menú contextual predeterminado
+                      handleDeleteBlock(block.id); // Eliminar el bloque al hacer clic derecho
                     }}
                   >
                     {block.activity}
