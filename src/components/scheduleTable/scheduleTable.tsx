@@ -43,22 +43,7 @@ export default function ScheduleTable() {
   const SNAP_SIZE = 8; // Tamaño de snap en píxeles
   const MIN_SIZE = 8;
 
-  const [scheduleBlocks, setScheduleBlocks] = useState<ScheduleBlock[]>([
-    {
-      day: "Lunes",
-      startTime: 120,
-      duration: 60, // 60 minutos
-      activity: "Reunión de equipo",
-      id: "block-1",
-    },
-    {
-      day: "Lunes",
-      startTime: 480,
-      duration: 120, // 120 minutos
-      activity: "Estudio de matemáticas",
-      id: "block-2",
-    },
-  ]);
+  const [scheduleBlocks, setScheduleBlocks] = useState<ScheduleBlock[]>([]);
 
   // Manejador para iniciar el resizing
   const handleMouseDown = (e: React.MouseEvent, block: ScheduleBlock) => {
@@ -253,6 +238,16 @@ export default function ScheduleTable() {
       prevBlocks.filter((block) => block.id !== blockId)
     );
   };
+  useEffect(() => {
+    const data = localStorage.getItem("scheduleBlocks");
+    if (data) {
+      setScheduleBlocks(JSON.parse(data));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("scheduleBlocks", JSON.stringify(scheduleBlocks)); // Convertir a string para guardar
+  }, [scheduleBlocks]);
 
   return (
     <main className={styles.main}>
