@@ -9,6 +9,42 @@ function formatToTimeString(minutes: number): string {
 
   return `${formattedMinutes}:${formattedSeconds}`;
 }
+function darkenHexColor(hex?: string, amount?: number): string | undefined {
+  if (!hex || !amount) return undefined;
+  // Asegúrate de que el color comienza con "#" (si no, agregamos uno)
+  if (hex.startsWith("#")) {
+    hex = hex.substring(1);
+  }
+
+  // Asegúrate de que el color sea de 6 caracteres (HEX válido)
+  if (hex.length !== 6) {
+    throw new Error("El color HEX debe ser de 6 caracteres.");
+  }
+
+  // Convertir el valor HEX a componentes RGB
+  let r = parseInt(hex.substring(0, 2), 16);
+  let g = parseInt(hex.substring(2, 4), 16);
+  let b = parseInt(hex.substring(4, 6), 16);
+
+  // Oscurecer cada componente (restando el valor "amount")
+  r = Math.max(0, r - amount);
+  g = Math.max(0, g - amount);
+  b = Math.max(0, b - amount);
+
+  // Volver a convertir los valores RGB a HEX
+  const darkenedHex = `#${((1 << 24) | (r << 16) | (g << 8) | b)
+    .toString(16)
+    .slice(1)
+    .padStart(6, "0")}`;
+
+  return darkenedHex;
+}
+
+const randomHexColor = () => {
+  const randomColor = Math.floor(Math.random() * 16777215).toString(16);
+  const color = `#${randomColor.padStart(6, "0")}`; // Asegura 6 caracteres
+  return color;
+};
 
 export interface ScheduleBlock {
   day: string; // El día de la semana (por ejemplo, 'Lunes', 'Martes', etc.)
@@ -216,9 +252,7 @@ export default function ScheduleTable() {
     // Calcular la hora de inicio en minutos basándote en la posición del clic
     const clickY = e.clientY - e.currentTarget.getBoundingClientRect().top - 32;
     const newStartTime = Math.floor(clickY / 32) * 60; // Ajuste al múltiplo de 60 minutos
-    const randomColor = Math.floor(Math.random() * 16777215).toString(16);
-    const color = `#${randomColor.padStart(6, "0")}`; // Asegura 6 caracteres
-
+    const color = randomHexColor();
     const newBlock: ScheduleBlock = {
       day,
       startTime: newStartTime,
@@ -300,10 +334,14 @@ export default function ScheduleTable() {
                   <div
                     key={block.id}
                     className={styles.columnBlock}
-                    style={{
-                      height: convertDurationToHeight(block.duration),
-                      top: 32 + convertDurationToHeight(block.startTime),
-                    }}
+                    style={
+                      {
+                        height: convertDurationToHeight(block.duration),
+                        top: 32 + convertDurationToHeight(block.startTime),
+                        "--blockColor": block.color,
+                        "--blockBorderColor": darkenHexColor(block.color, 30),
+                      } as React.CSSProperties
+                    }
                     onContextMenu={(e) => {
                       e.preventDefault(); // Prevenir el menú contextual predeterminado
                       handleDeleteBlock(block.id); // Eliminar el bloque al hacer clic derecho
