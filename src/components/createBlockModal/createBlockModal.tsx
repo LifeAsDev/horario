@@ -6,15 +6,19 @@ export default function CreateBlockModal({
   scheduleBlock,
   setScheduleBlock,
   createBlock,
+  back,
+  mode,
 }: {
   scheduleBlock: ScheduleBlock;
   setScheduleBlock: Dispatch<SetStateAction<ScheduleBlock | null>>;
   createBlock: () => void;
+  back: () => void;
+  mode?: string;
 }) {
   return (
     <div className={styles.overlay}>
       <div className={styles.mainBox}>
-        <h2>Nuevo Bloque</h2>
+        <h2>{mode === "edit" ? "Editar" : "Nuevo"} Bloque</h2>
         <div className={styles.inputBox}>
           <label htmlFor="activity">Actividad</label>
           <input
@@ -52,9 +56,14 @@ export default function CreateBlockModal({
             defaultValue={scheduleBlock.color}
           />
         </div>
-        <button onClick={createBlock} type="button">
-          Crear
-        </button>
+        <div className={styles.buttonBox}>
+          <button onClick={back} type="button">
+            Volver
+          </button>
+          <button onClick={createBlock} type="button">
+            {mode === "edit" ? "Editar" : "Crear"}
+          </button>
+        </div>
       </div>
     </div>
   );

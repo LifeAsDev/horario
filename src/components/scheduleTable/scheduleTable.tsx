@@ -84,6 +84,8 @@ export default function ScheduleTable() {
   const [newConfirmBlock, setNewConfirmBlock] = useState<ScheduleBlock | null>(
     null
   );
+  const [editConfirmBlock, setEditConfirmBlock] =
+    useState<ScheduleBlock | null>(null);
 
   // Manejador para iniciar el resizing
   const handleMouseDown = (e: React.MouseEvent, block: ScheduleBlock) => {
@@ -248,6 +250,16 @@ export default function ScheduleTable() {
     setScheduleBlocks((prevBlocks) => [...prevBlocks, newBlock]);
   };
 
+  const confirmEditBlock = () => {
+    const updatedBlock: ScheduleBlock = editConfirmBlock!;
+
+    setScheduleBlocks((prevBlocks) =>
+      prevBlocks.map((block) =>
+        block.id === updatedBlock.id ? updatedBlock : block
+      )
+    );
+  };
+
   const handleCreateBlock = (e: React.MouseEvent, day: string) => {
     // Calcular la hora de inicio en minutos basándote en la posición del clic
     const clickY = e.clientY - e.currentTarget.getBoundingClientRect().top - 32;
@@ -276,6 +288,11 @@ export default function ScheduleTable() {
       setNewConfirmBlock(newBlock);
     }
   };
+
+  const handleEditBlock = (block: ScheduleBlock) => {
+    setEditConfirmBlock(block);
+  };
+
   // Función para manejar la eliminación de un bloque específico
   const handleDeleteBlock = (blockId: string) => {
     setScheduleBlocks((prevBlocks) =>
@@ -303,6 +320,23 @@ export default function ScheduleTable() {
             confirmNewBlock();
             setNewConfirmBlock(null);
           }}
+          back={() => {
+            setNewConfirmBlock(null);
+          }}
+        />
+      )}
+      {editConfirmBlock && (
+        <CreateBlockModal
+          scheduleBlock={editConfirmBlock}
+          setScheduleBlock={setEditConfirmBlock}
+          createBlock={() => {
+            confirmEditBlock();
+            setEditConfirmBlock(null);
+          }}
+          back={() => {
+            setEditConfirmBlock(null);
+          }}
+          mode={"edit"}
         />
       )}
       <div
@@ -345,6 +379,9 @@ export default function ScheduleTable() {
                     onContextMenu={(e) => {
                       e.preventDefault(); // Prevenir el menú contextual predeterminado
                       handleDeleteBlock(block.id); // Eliminar el bloque al hacer clic derecho
+                    }}
+                    onDoubleClick={() => {
+                      handleEditBlock(block);
                     }}
                   >
                     {block.activity}
