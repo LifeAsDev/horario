@@ -317,8 +317,8 @@ export default function ScheduleTable() {
       >
         {tableHeaderRow.map((row) => (
           <div
-            onClick={(e) => handleCreateBlock(e, row)}
             key={row}
+            onClick={(e) => handleCreateBlock(e, row)}
             className={`${styles.row} ${row === "Hora" && styles.rowHour}`}
           >
             <div className={styles.rowHeader}>{row}</div>
@@ -337,9 +337,9 @@ export default function ScheduleTable() {
                     style={
                       {
                         height: convertDurationToHeight(block.duration),
-                        top: 32 + convertDurationToHeight(block.startTime),
+                        top: convertDurationToHeight(block.startTime) + 32,
                         "--blockColor": block.color,
-                        "--blockBorderColor": darkenHexColor(block.color, 30),
+                        "--blockBorderColor": darkenHexColor(block.color, 40),
                       } as React.CSSProperties
                     }
                     onContextMenu={(e) => {
@@ -362,7 +362,17 @@ export default function ScheduleTable() {
                   </div>
                 )
             )}
-            <div></div>
+            {scheduleBlocks.map(
+              (block) =>
+                block.day === row && (
+                  <div
+                    key={`${block.id}${block.id}`}
+                    className={styles.columnBlockSpan}
+                  >
+                    {block.activity}
+                  </div>
+                )
+            )}
           </div>
         ))}
       </div>

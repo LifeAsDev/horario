@@ -7,7 +7,6 @@
 .table {
   overflow: auto;
   position: relative;
-  width: 100%;
   display: flex;
   flex-direction: row;
   box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.45);
@@ -15,6 +14,7 @@
   border-radius: 8px;
   justify-content: flex-start;
   padding: 1em;
+  width: 100%;
 }
 
 .row {
@@ -61,7 +61,16 @@
   flex-direction: column;
   line-height: 0.8em;
   padding: 0 0.25em;
-  width: auto;
+  width: 100%;
+  word-break: break-all;
+}
+
+.columnBlockSpan {
+  border: 4px solid var(--blockBorderColor);
+  visibility: hidden;
+  word-break: break-all;
+  line-height: 0.8em;
+  padding: 0 0.25em;
 }
 
 .rezizeHandler {
