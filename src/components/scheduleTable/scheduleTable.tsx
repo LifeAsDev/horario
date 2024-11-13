@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import styles from "./styles.module.css";
+import CreateBlockModal from "@/src/components/createBlockModal/createBlockModal";
 
 function formatToTimeString(minutes: number): string {
   const formattedMinutes = String(minutes).padStart(2, "0");
@@ -9,12 +10,13 @@ function formatToTimeString(minutes: number): string {
   return `${formattedMinutes}:${formattedSeconds}`;
 }
 
-interface ScheduleBlock {
+export interface ScheduleBlock {
   day: string; // El día de la semana (por ejemplo, 'Lunes', 'Martes', etc.)
   startTime: number; // Hora de inicio en minutos desde las 08:00 AM
   duration: number; // Duración en minutos (por ejemplo, 60 minutos)
   activity: string; // Descripción de la actividad (por ejemplo, 'Reunión', 'Estudio')
   id: string; // Identificador único para cada bloque (puede ser generado con un UUID)
+  color?: string;
 }
 
 export default function ScheduleTable() {
@@ -42,8 +44,10 @@ export default function ScheduleTable() {
   const [originalStartTime, setOriginalStartTime] = useState(0);
   const SNAP_SIZE = 8; // Tamaño de snap en píxeles
   const MIN_SIZE = 8;
-
   const [scheduleBlocks, setScheduleBlocks] = useState<ScheduleBlock[]>([]);
+  const [newConfirmBlock, setNewConfirmBlock] = useState<ScheduleBlock | null>(
+    null
+  );
 
   // Manejador para iniciar el resizing
   const handleMouseDown = (e: React.MouseEvent, block: ScheduleBlock) => {
@@ -201,10 +205,19 @@ export default function ScheduleTable() {
     setOriginalStartTime(block.startTime);
     e.preventDefault();
   };
+
+  const confirmNewBlock = () => {
+    const newBlock: ScheduleBlock = newConfirmBlock!;
+
+    setScheduleBlocks((prevBlocks) => [...prevBlocks, newBlock]);
+  };
+
   const handleCreateBlock = (e: React.MouseEvent, day: string) => {
     // Calcular la hora de inicio en minutos basándote en la posición del clic
     const clickY = e.clientY - e.currentTarget.getBoundingClientRect().top - 32;
     const newStartTime = Math.floor(clickY / 32) * 60; // Ajuste al múltiplo de 60 minutos
+    const randomColor = Math.floor(Math.random() * 16777215).toString(16);
+    const color = `#${randomColor.padStart(6, "0")}`; // Asegura 6 caracteres
 
     const newBlock: ScheduleBlock = {
       day,
@@ -212,9 +225,8 @@ export default function ScheduleTable() {
       duration: 60, // Duración por defecto de 60 minutos
       activity: "bloque",
       id: `block-${Date.now()}`, // ID único
+      color,
     };
-
-    // Verificar si el nuevo bloque se solapa con algún bloque existente
     const isOverlapping = scheduleBlocks.some((block) => {
       if (block.day !== newBlock.day) return false; // Comparar solo bloques del mismo día
 
@@ -226,10 +238,8 @@ export default function ScheduleTable() {
         newBlock.startTime < blockEndTime && newBlockEndTime > block.startTime
       );
     });
-
-    // Si no hay solapamiento, agregar el nuevo bloque
     if (!isOverlapping) {
-      setScheduleBlocks((prevBlocks) => [...prevBlocks, newBlock]);
+      setNewConfirmBlock(newBlock);
     }
   };
   // Función para manejar la eliminación de un bloque específico
@@ -251,6 +261,16 @@ export default function ScheduleTable() {
 
   return (
     <main className={styles.main}>
+      {newConfirmBlock && (
+        <CreateBlockModal
+          scheduleBlock={newConfirmBlock}
+          setScheduleBlock={setNewConfirmBlock}
+          createBlock={() => {
+            confirmNewBlock();
+            setNewConfirmBlock(null);
+          }}
+        />
+      )}
       <div
         className={styles.table}
         style={{
@@ -265,7 +285,7 @@ export default function ScheduleTable() {
           <div
             onClick={(e) => handleCreateBlock(e, row)}
             key={row}
-            className={styles.row}
+            className={`${styles.row} ${row === "Hora" && styles.rowHour}`}
           >
             <div className={styles.rowHeader}>{row}</div>
             {row === "Hora" &&

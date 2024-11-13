@@ -17,3 +17,14 @@ body {
   color: var(--light-grayish-blue);
   background-color: var(--very-dark-blue);
 }
+
+button {
+  background-color: var(--very-dark-desaturated-blue);
+  border: 1px solid var(--light-grayish-blue);
+  border-radius: 0.25em;
+  padding: 0.5em 2em;
+  padding-bottom: 0.425em;
+  color: var(--white);
+  height: 39px;
+  min-width: 105px;
+}

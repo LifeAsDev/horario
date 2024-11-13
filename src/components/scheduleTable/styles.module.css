@@ -78,3 +78,7 @@
   left: 0;
   cursor: grab;
 }
+
+.rowHour {
+  flex-grow: 0;
+}
