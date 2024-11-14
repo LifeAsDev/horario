@@ -175,31 +175,85 @@ export default function ScheduleTable() {
         const blockToMove = newScheduleBlocks.find(
           (item) => item.id === isDragging
         );
-        if (blockToMove) {
-          const isOverlapping = newScheduleBlocks.some((item) => {
-            if (item.id === blockToMove.id) return false;
 
-            if (item.day === blockToMove.day) {
-              const blockEndTime = newStartTime + blockToMove.duration;
-              const itemEndTime = item.startTime + item.duration;
+        if (!blockToMove) return prev; // Si no existe el bloque, no hacemos nada
 
-              if (newStartTime < itemEndTime && blockEndTime > item.startTime) {
-                newStartTime =
-                  newStartTime < item.startTime
-                    ? item.startTime - blockToMove.duration
-                    : itemEndTime;
+        const dayBlocks = newScheduleBlocks.filter(
+          (block) =>
+            block.day === blockToMove.day && block.id !== blockToMove.id
+        );
 
-                return false;
-              }
-            }
-            return false;
-          });
+        // Crear una lista de intervalos ocupados
+        const occupiedIntervals = dayBlocks.map((block) => ({
+          start: block.startTime,
+          end: block.startTime + block.duration,
+        }));
 
-          if (!isOverlapping && newStartTime >= 0 && newStartTime <= 960) {
-            blockToMove.startTime = newStartTime;
+        // Ordenar los intervalos ocupados por hora de inicio
+        occupiedIntervals.sort((a, b) => a.start - b.start);
+
+        // Crear intervalos disponibles
+        const availableIntervals: { start: number; end: number }[] = [];
+        let previousEnd = 0;
+        const maxEnd = 960;
+
+        for (const interval of occupiedIntervals) {
+          if (
+            previousEnd < interval.start &&
+            interval.start - previousEnd >= blockToMove.duration
+          ) {
+            availableIntervals.push({
+              start: previousEnd,
+              end: interval.start,
+            });
           }
+          previousEnd = Math.max(previousEnd, interval.end);
         }
-        return newScheduleBlocks;
+        // Agregar el último intervalo si queda espacio
+        if (previousEnd < maxEnd) {
+          availableIntervals.push({ start: previousEnd, end: maxEnd });
+        }
+
+        // Revisar dónde encaja el bloque que se mueve
+        const blockEndTime = newStartTime + blockToMove.duration;
+
+        const validInterval = availableIntervals.find(
+          (interval) =>
+            newStartTime >= interval.start && blockEndTime <= interval.end
+        );
+
+        if (validInterval) {
+          // Si hay un intervalo válido, asignar la nueva posición
+          const updatedBlock = { ...blockToMove, startTime: newStartTime };
+          return newScheduleBlocks.map((block) =>
+            block.id === blockToMove.id ? updatedBlock : block
+          );
+        }
+
+        // Si no hay intervalo válido, intentar ajustarlo automáticamente
+        /*    const closestInterval = availableIntervals
+          .map((interval) => ({ distance: 1 }))
+          .find(
+            (interval) => interval.end - interval.start >= blockToMove.duration
+          ); */
+
+        /*     const closestInterval = availableIntervals
+          .map((interval) =>{if()})
+          .sort((a, b) => a.distance - b.distance);
+ */ /* 
+        if (closestInterval) {
+          // Ajustar el bloque al inicio del hueco más cercano
+          const updatedBlock = {
+            ...blockToMove,
+            startTime: closestInterval.start,
+          };
+          return newScheduleBlocks.map((block) =>
+            block.id === blockToMove.id ? updatedBlock : block
+          );
+        } */
+
+        // Si no hay espacio suficiente, devolvemos el estado sin cambios
+        return prev;
       });
     }
   };
