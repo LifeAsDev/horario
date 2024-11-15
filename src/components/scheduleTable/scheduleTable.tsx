@@ -167,8 +167,16 @@ export default function ScheduleTable() {
     }
     if (isDragging) {
       const deltaY = e.clientY - dragStartY;
-      let newStartTime =
-        Math.round((originalStartTime + (deltaY / 32) * 60) / 15) * 15;
+
+      // Convertir deltaY a minutos
+      const deltaMinutes = Math.round((deltaY / 32) * 60);
+      const table = document.getElementById("table");
+      const clickY = e.clientY - table!.getBoundingClientRect().top - 48;
+      console.log(table!.getBoundingClientRect().top);
+      const deltaYDrag = Math.round(((clickY / 32) * 60) / 15) * 15;
+
+      const newStartTime =
+        Math.round((originalStartTime + deltaMinutes) / 15) * 15;
 
       setScheduleBlocks((prev) => {
         const newScheduleBlocks = [...prev];
@@ -237,20 +245,46 @@ export default function ScheduleTable() {
             (interval) => interval.end - interval.start >= blockToMove.duration
           ); */
 
-        /*     const closestInterval = availableIntervals
-          .map((interval) =>{if()})
-          .sort((a, b) => a.distance - b.distance);
- */ /* 
+        const intervalSort: {
+          direction: "up" | "down";
+          y: number;
+          distance: number;
+        }[] = [];
+        availableIntervals.map((interval) => {
+          intervalSort.push({
+            direction: "up",
+            y: interval.end,
+            distance: Math.abs(deltaYDrag - interval.end),
+          });
+          intervalSort.push({
+            direction: "down",
+            y: interval.start,
+            distance: Math.abs(deltaYDrag - interval.start),
+          });
+        });
+        console.log({ deltaYDrag });
+
+        console.log({ intervalSort });
+
+        intervalSort.sort((a, b) => a.distance - b.distance);
+
+        const closestInterval = intervalSort[0];
+
         if (closestInterval) {
           // Ajustar el bloque al inicio del hueco más cercano
+          let updateStartTime = 0;
+          if (closestInterval.direction === "down")
+            updateStartTime = closestInterval.y;
+          else updateStartTime = closestInterval.y - blockToMove.duration;
           const updatedBlock = {
             ...blockToMove,
-            startTime: closestInterval.start,
+            startTime: updateStartTime,
           };
+
           return newScheduleBlocks.map((block) =>
             block.id === blockToMove.id ? updatedBlock : block
           );
-        } */
+        }
 
         // Si no hay espacio suficiente, devolvemos el estado sin cambios
         return prev;
@@ -395,6 +429,7 @@ export default function ScheduleTable() {
       )}
       <div
         className={styles.table}
+        id="table"
         style={{
           cursor: isResizing
             ? "ns-resize"
