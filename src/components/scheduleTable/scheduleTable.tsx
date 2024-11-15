@@ -477,10 +477,17 @@ export default function ScheduleTable() {
                     <div
                       className={styles.rezizeHandler}
                       onMouseDown={(e) => handleMouseDown(e, block)}
+                      style={{
+                        cursor: !isDragging ? "ns-resize" : "grabbing",
+                      }}
                     />
                     <div
                       style={{
-                        cursor: isDragging ? "grabbing" : "grab ",
+                        cursor: isResizing
+                          ? "ns-resize"
+                          : isDragging
+                          ? "grabbing"
+                          : "grab",
                       }}
                       className={styles.dragHandler}
                       onMouseDown={(e) => handleDragStart(e, block)}
