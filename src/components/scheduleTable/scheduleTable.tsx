@@ -153,10 +153,14 @@ export default function ScheduleTable() {
             }
             return false;
           });
+          const maxDurationByTable = 960 - blockToResize.startTime;
 
           // Si hay solapamiento, no permitir el cambio de tamaño
           if (!isOverlapping) {
-            blockToResize.duration = newDuration;
+            blockToResize.duration = blockToResize.duration = Math.min(
+              newDuration,
+              maxDurationByTable
+            );
           }
         }
 
@@ -172,7 +176,6 @@ export default function ScheduleTable() {
       const deltaMinutes = Math.round((deltaY / 32) * 60);
       const table = document.getElementById("table");
       const clickY = e.clientY - table!.getBoundingClientRect().top - 48;
-      console.log(table!.getBoundingClientRect().top);
       const deltaYDrag = Math.round(((clickY / 32) * 60) / 15) * 15;
 
       const newStartTime =
@@ -262,9 +265,6 @@ export default function ScheduleTable() {
             distance: Math.abs(deltaYDrag - interval.start),
           });
         });
-        console.log({ deltaYDrag });
-
-        console.log({ intervalSort });
 
         intervalSort.sort((a, b) => a.distance - b.distance);
 
