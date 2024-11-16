@@ -372,7 +372,7 @@ export default function ScheduleTable() {
         newBlock.startTime < blockEndTime && newBlockEndTime > block.startTime
       );
     });
-    if (!isOverlapping) {
+    if (!isOverlapping && newStartTime >= 0) {
       setNewConfirmBlock(newBlock);
     }
   };
