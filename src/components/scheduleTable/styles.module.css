@@ -93,3 +93,17 @@
 .rowHour {
   flex-grow: 0;
 }
+
+.cellHover {
+  background-color: rgba(255, 255, 255, 0.25);
+  width: calc(100% - 2em);
+  position: absolute;
+  height: 32px;
+  z-index: 2;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.table:hover:not(.cursorDown) .cellHover {
+  visibility: visible;
+}

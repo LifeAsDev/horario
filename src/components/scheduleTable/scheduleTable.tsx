@@ -86,6 +86,7 @@ export default function ScheduleTable() {
   );
   const [editConfirmBlock, setEditConfirmBlock] =
     useState<ScheduleBlock | null>(null);
+  const [cellY, setCellY] = useState(0);
 
   // Manejador para iniciar el resizing
   const handleMouseDown = (e: React.MouseEvent, block: ScheduleBlock) => {
@@ -290,6 +291,12 @@ export default function ScheduleTable() {
         return prev;
       });
     }
+    const table = document.getElementById("table");
+    const clickY = e.clientY - table!.getBoundingClientRect().top - 48;
+    const newStartTime = Math.floor(clickY / 32) * 60; // Ajuste al múltiplo de 60 minutos
+    if (newStartTime <= 900 && newStartTime >= 0) {
+      setCellY(newStartTime);
+    }
   };
 
   // Manejador para detener el resizing
@@ -301,12 +308,11 @@ export default function ScheduleTable() {
   // Agregar y remover listeners de mouse cuando sea necesario
   useEffect(() => {
     if (isResizing || isDragging) {
-      window.addEventListener("mousemove", handleMouseMove);
       window.addEventListener("mouseup", handleMouseUp);
     } else {
-      window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
     }
+    window.addEventListener("mousemove", handleMouseMove);
 
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
@@ -428,7 +434,9 @@ export default function ScheduleTable() {
         />
       )}
       <div
-        className={styles.table}
+        className={`${styles.table} ${
+          isResizing || isDragging ? styles.cursorDown : ""
+        }`}
         id="table"
         style={{
           cursor: isResizing
@@ -438,6 +446,14 @@ export default function ScheduleTable() {
             : "default",
         }}
       >
+        <div
+          className={styles.cellHover}
+          style={
+            {
+              top: convertDurationToHeight(cellY) + 48,
+            } as React.CSSProperties
+          }
+        ></div>
         {tableHeaderRow.map((row) => (
           <div
             key={row}
