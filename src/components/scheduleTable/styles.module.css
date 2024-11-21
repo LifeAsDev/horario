@@ -1,7 +1,9 @@
 .main {
   display: flex;
   margin: auto;
-  padding: 2em;
+  padding: 1em 2em;
+  flex-direction: column;
+  padding-top: 0.5em;
 }
 
 .table {
@@ -106,4 +108,23 @@
 
 .table:hover:not(.cursorDown) .cellHover {
   visibility: visible;
+}
+
+.deleteBlock {
+  color: var(--primary-red);
+}
+.deleteBlockBox {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: 1em;
+  padding-bottom: 0.5em;
+}
+
+.deleteBlockBox p {
+  cursor: pointer;
+}
+
+.deleteBlockInfo {
+  cursor: auto !important;
 }

@@ -12,6 +12,9 @@
   --dark-grayish-blue: hsl(234, 11%, 52%);
   --very-dark-grayish-blue-1: hsl(233, 14%, 35%);
   --very-dark-grayish-blue-2: hsl(237, 14%, 26%);
+  --primary-red: #ef4444;
+  --secondary-red: #fa8383;
+  --third-red: #da0202;
 }
 body {
   color: var(--light-grayish-blue);

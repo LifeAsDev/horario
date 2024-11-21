@@ -84,6 +84,8 @@ export default function ScheduleTable() {
   const [newConfirmBlock, setNewConfirmBlock] = useState<ScheduleBlock | null>(
     null
   );
+  const [deleteBlocks, setDeleteBlocks] = useState<string[] | null>(null);
+
   const [editConfirmBlock, setEditConfirmBlock] =
     useState<ScheduleBlock | null>(null);
   const [cellY, setCellY] = useState(0);
@@ -363,7 +365,7 @@ export default function ScheduleTable() {
       day,
       startTime: newStartTime,
       duration: 60, // Duración por defecto de 60 minutos
-      activity: "bloque",
+      activity: "",
       id: `block-${Date.now()}`, // ID único
       color,
     };
@@ -387,12 +389,13 @@ export default function ScheduleTable() {
     setEditConfirmBlock(block);
   };
 
-  // Función para manejar la eliminación de un bloque específico
-  const handleDeleteBlock = (blockId: string) => {
-    setScheduleBlocks((prevBlocks) =>
-      prevBlocks.filter((block) => block.id !== blockId)
-    );
+  const handleDeleteBlock = () => {
+    if (deleteBlocks)
+      setScheduleBlocks((prevBlocks) =>
+        prevBlocks.filter((block) => !deleteBlocks.includes(block.id))
+      );
   };
+
   useEffect(() => {
     const data = localStorage.getItem("scheduleBlocks");
     if (data) {
@@ -433,6 +436,29 @@ export default function ScheduleTable() {
           mode={"edit"}
         />
       )}
+      <div className={styles.deleteBlockBox}>
+        {deleteBlocks ? (
+          <>
+            <p className={styles.deleteBlockInfo}>
+              Bloques seleccionados: {deleteBlocks.length}
+            </p>
+            <p onClick={() => setDeleteBlocks(null)}>Cancelar</p>
+            <p
+              onClick={() => {
+                handleDeleteBlock();
+                setDeleteBlocks(null);
+              }}
+              className={styles.deleteBlock}
+            >
+              Confirmar
+            </p>
+          </>
+        ) : (
+          <p onClick={() => setDeleteBlocks([])} className={styles.deleteBlock}>
+            Borrar bloques
+          </p>
+        )}
+      </div>
       <div
         className={`${styles.table} ${
           isResizing || isDragging ? styles.cursorDown : ""
@@ -457,7 +483,9 @@ export default function ScheduleTable() {
         {tableHeaderRow.map((row) => (
           <div
             key={row}
-            onClick={(e) => handleCreateBlock(e, row)}
+            onClick={(e) => {
+              if (row != "Hora" && !deleteBlocks) handleCreateBlock(e, row);
+            }}
             className={`${styles.row} ${row === "Hora" && styles.rowHour}`}
           >
             <div className={styles.rowHeader}>{row}</div>
@@ -477,36 +505,64 @@ export default function ScheduleTable() {
                       {
                         height: convertDurationToHeight(block.duration),
                         top: convertDurationToHeight(block.startTime) + 32,
-                        "--blockColor": block.color,
-                        "--blockBorderColor": darkenHexColor(block.color, 40),
+                        "--blockColor": deleteBlocks
+                          ? deleteBlocks.includes(block.id)
+                            ? "#4DA8FF"
+                            : "#B0B0B0"
+                          : block.color,
+                        "--blockBorderColor": deleteBlocks
+                          ? deleteBlocks.includes(block.id)
+                            ? darkenHexColor("#4DA8FF", 40)
+                            : darkenHexColor("#B0B0B0", 40)
+                          : darkenHexColor(block.color, 40),
+                        cursor: !deleteBlocks ? "auto" : "pointer",
                       } as React.CSSProperties
                     }
-                    onContextMenu={(e) => {
+                    /*              onContextMenu={(e) => {
                       e.preventDefault(); // Prevenir el menú contextual predeterminado
                       handleDeleteBlock(block.id); // Eliminar el bloque al hacer clic derecho
-                    }}
+                    }} */
                     onDoubleClick={() => {
-                      handleEditBlock(block);
+                      if (!deleteBlocks) handleEditBlock(block);
+                    }}
+                    onClick={() => {
+                      if (deleteBlocks)
+                        if (!deleteBlocks.includes(block.id))
+                          setDeleteBlocks((prev) => [...prev!, block.id]);
+                        else
+                          setDeleteBlocks((prev) =>
+                            prev!.filter((item) => item !== block.id)
+                          );
                     }}
                   >
                     {block.activity}
                     <div
                       className={styles.rezizeHandler}
-                      onMouseDown={(e) => handleMouseDown(e, block)}
+                      onMouseDown={(e) => {
+                        if (!deleteBlocks) handleMouseDown(e, block);
+                      }}
                       style={{
-                        cursor: !isDragging ? "ns-resize" : "grabbing",
+                        cursor: deleteBlocks
+                          ? "pointer"
+                          : !isDragging
+                          ? "ns-resize"
+                          : "grabbing",
                       }}
                     />
                     <div
                       style={{
-                        cursor: isResizing
+                        cursor: deleteBlocks
+                          ? "pointer"
+                          : isResizing
                           ? "ns-resize"
                           : isDragging
                           ? "grabbing"
                           : "grab",
                       }}
                       className={styles.dragHandler}
-                      onMouseDown={(e) => handleDragStart(e, block)}
+                      onMouseDown={(e) => {
+                        if (!deleteBlocks) handleDragStart(e, block);
+                      }}
                     />
                   </div>
                 )
