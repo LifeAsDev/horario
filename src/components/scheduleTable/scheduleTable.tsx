@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import styles from "./styles.module.css";
 import CreateBlockModal from "@/src/components/createBlockModal/createBlockModal";
+import DeleteBlockModal from "@/src/components/deleteBlockModal/deleteBlockModal";
 
 function formatToTimeString(minutes: number): string {
   const formattedMinutes = String(minutes).padStart(2, "0");
@@ -85,9 +86,10 @@ export default function ScheduleTable() {
     null
   );
   const [deleteBlocks, setDeleteBlocks] = useState<string[] | null>(null);
-
   const [editConfirmBlock, setEditConfirmBlock] =
     useState<ScheduleBlock | null>(null);
+
+  const [deletingBlock, setDeletingBlock] = useState(false);
   const [cellY, setCellY] = useState(0);
 
   // Manejador para iniciar el resizing
@@ -436,6 +438,19 @@ export default function ScheduleTable() {
           mode={"edit"}
         />
       )}
+      {deletingBlock && (
+        <DeleteBlockModal
+          deleteBlock={() => {
+            handleDeleteBlock();
+            setDeleteBlocks(null);
+            setDeletingBlock(false);
+          }}
+          back={() => {
+            setDeletingBlock(false);
+          }}
+          blockCount={deleteBlocks?.length}
+        />
+      )}
       <div className={styles.deleteBlockBox}>
         {deleteBlocks ? (
           <>
@@ -445,8 +460,7 @@ export default function ScheduleTable() {
             <p onClick={() => setDeleteBlocks(null)}>Cancelar</p>
             <p
               onClick={() => {
-                handleDeleteBlock();
-                setDeleteBlocks(null);
+                setDeletingBlock(true);
               }}
               className={styles.deleteBlock}
             >
