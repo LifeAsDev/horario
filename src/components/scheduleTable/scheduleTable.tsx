@@ -460,7 +460,10 @@ export default function ScheduleTable() {
             <p onClick={() => setDeleteBlocks(null)}>Cancelar</p>
             <p
               onClick={() => {
-                setDeletingBlock(true);
+                if (deleteBlocks.length > 0) setDeletingBlock(true);
+                else {
+                  setDeleteBlocks(null);
+                }
               }}
               className={styles.deleteBlock}
             >
