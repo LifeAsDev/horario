@@ -47,6 +47,32 @@ const randomHexColor = () => {
   return color;
 };
 
+function getTextColor(hex: string): "white" | "black" {
+  // Elimina el '#' si está presente
+  const sanitizedHex = hex.replace("#", "");
+
+  // Convierte el color de formato hexadecimal a valores RGB
+  const r = parseInt(sanitizedHex.substring(0, 2), 16);
+  const g = parseInt(sanitizedHex.substring(2, 4), 16);
+  const b = parseInt(sanitizedHex.substring(4, 6), 16);
+
+  // Calcula la luminosidad relativa
+  const relativeLuminance = (channel: number) => {
+    const value = channel / 255;
+    return value <= 0.03928
+      ? value / 12.92
+      : Math.pow((value + 0.055) / 1.055, 2.4);
+  };
+
+  const luminance =
+    0.2126 * relativeLuminance(r) +
+    0.7152 * relativeLuminance(g) +
+    0.0722 * relativeLuminance(b);
+
+  // Devuelve blanco si el color es oscuro, negro si es claro
+  return luminance > 0.179 ? "black" : "white";
+}
+
 export interface ScheduleBlock {
   day: string; // El día de la semana (por ejemplo, 'Lunes', 'Martes', etc.)
   startTime: number; // Hora de inicio en minutos desde las 08:00 AM
