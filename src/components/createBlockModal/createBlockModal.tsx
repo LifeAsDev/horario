@@ -90,10 +90,45 @@ export default function CreateBlockModal({
           <div className={styles.colorBox}>
             {colors.map((color) => (
               <div
+                onClick={(e) => {
+                  setScheduleBlock((prev) => {
+                    const newPrev = {
+                      ...prev,
+                      color,
+                    } as ScheduleBlock;
+                    return newPrev;
+                  });
+                }}
                 key={color}
                 style={{ "--color": color } as React.CSSProperties}
-                className={styles.colorRounded}
-              ></div>
+                className={`${styles.colorRounded} ${
+                  color === scheduleBlock.color && styles.colorSelect
+                }`}
+              >
+                {/*    {color === scheduleBlock.color && (
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                    <g
+                      id="SVGRepo_tracerCarrier"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    ></g>
+                    <g id="SVGRepo_iconCarrier">
+                      <path
+                        d="M4 12.6111L8.92308 17.5L20 6.5"
+                        stroke="#ffffff"
+                        strokeWidth="6"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      ></path>
+                    </g>
+                  </svg>
+                )} */}
+              </div>
             ))}
           </div>
         </div>

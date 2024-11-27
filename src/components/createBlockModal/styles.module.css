@@ -60,6 +60,7 @@
   width: 100%;
   border-radius: 50%;
   cursor: pointer;
+  padding: 0.1em;
 }
 .colorBox {
   display: grid;
@@ -67,4 +68,8 @@
   justify-content: space-between;
   margin-top: 0.5em;
   gap: 0.5em;
+}
+
+.colorSelect {
+  border: 8px solid white;
 }
