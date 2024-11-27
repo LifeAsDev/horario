@@ -52,3 +52,19 @@
   flex-direction: row;
   justify-content: space-between;
 }
+
+.colorRounded {
+  --color: red;
+  background-color: var(--color);
+  height: 2em;
+  width: 100%;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.colorBox {
+  display: grid;
+  grid-template-columns: repeat(6, 2em);
+  justify-content: space-between;
+  margin-top: 0.5em;
+  gap: 0.5em;
+}
