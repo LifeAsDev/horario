@@ -2,7 +2,7 @@ import { ScheduleBlock } from "@/src/components/scheduleTable/scheduleTable";
 import styles from "./styles.module.css";
 import { Dispatch, SetStateAction, useEffect, useRef } from "react";
 
-const colors: string[] = [
+export const colors: string[] = [
   "#FF5733", // Rojo anaranjado
   "#33FF57", // Verde lima
   "#3357FF", // Azul brillante

@@ -1,7 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import styles from "./styles.module.css";
-import CreateBlockModal from "@/src/components/createBlockModal/createBlockModal";
+import CreateBlockModal, {
+  colors,
+} from "@/src/components/createBlockModal/createBlockModal";
 import DeleteBlockModal from "@/src/components/deleteBlockModal/deleteBlockModal";
 
 function formatToTimeString(minutes: number): string {
@@ -388,7 +390,7 @@ export default function ScheduleTable() {
     // Calcular la hora de inicio en minutos basándote en la posición del clic
     const clickY = e.clientY - e.currentTarget.getBoundingClientRect().top - 32;
     const newStartTime = Math.floor(clickY / 32) * 60; // Ajuste al múltiplo de 60 minutos
-    const color = randomHexColor();
+    const color = colors[Math.floor(Math.random() * colors.length)];
     const newBlock: ScheduleBlock = {
       day,
       startTime: newStartTime,
