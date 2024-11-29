@@ -548,7 +548,9 @@ export default function ScheduleTable() {
                     className={styles.columnBlock}
                     style={
                       {
-                        color: getTextColor(block.color || "#4DA8FF"),
+                        color: deleteBlocks
+                          ? "black"
+                          : getTextColor(block.color || "#4DA8FF"),
                         height: convertDurationToHeight(block.duration),
                         top: convertDurationToHeight(block.startTime) + 32,
                         "--blockColor": deleteBlocks
