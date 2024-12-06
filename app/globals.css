@@ -3,31 +3,34 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --very-dark-blue: hsl(235, 21%, 11%);
-  --very-dark-desaturated-blue: hsl(235, 24%, 19%);
-  --light-grayish-blue: hsl(234, 39%, 85%);
-  --light-grayish-blue-hover: hsl(236, 33%, 92%);
-  --dark-grayish-blue: hsl(234, 11%, 52%);
-  --very-dark-grayish-blue-1: hsl(233, 14%, 35%);
-  --very-dark-grayish-blue-2: hsl(237, 14%, 26%);
-  --primary-red: #ef4444;
-  --secondary-red: #fa8383;
-  --third-red: #da0202;
+	--background: #ffffff;
+	--foreground: #171717;
+	--very-dark-blue: hsl(235, 21%, 11%);
+	--very-dark-desaturated-blue: hsl(235, 24%, 19%);
+	--light-grayish-blue: hsl(234, 39%, 85%);
+	--light-grayish-blue-hover: hsl(236, 33%, 92%);
+	--dark-grayish-blue: hsl(234, 11%, 52%);
+	--very-dark-grayish-blue-1: hsl(233, 14%, 35%);
+	--very-dark-grayish-blue-2: hsl(237, 14%, 26%);
+	--primary-red: #ef4444;
+	--secondary-red: #fa8383;
+	--third-red: #da0202;
+	--primary-blue: #0070f3;
+	--secondary-blue: hsl(220, 70%, 50%);
 }
+
 body {
-  color: var(--light-grayish-blue);
-  background-color: var(--very-dark-blue);
+	color: var(--light-grayish-blue);
+	background-color: var(--very-dark-blue);
 }
 
 button {
-  background-color: var(--very-dark-desaturated-blue);
-  border: 1px solid var(--light-grayish-blue);
-  border-radius: 0.25em;
-  padding: 0.5em 2em;
-  padding-bottom: 0.425em;
-  color: var(--white);
-  height: 39px;
-  min-width: 105px;
+	background-color: var(--very-dark-desaturated-blue);
+	border: 1px solid var(--light-grayish-blue);
+	border-radius: 0.25em;
+	padding: 0.5em 2em;
+	padding-bottom: 0.425em;
+	color: var(--white);
+	height: 39px;
+	min-width: 105px;
 }
