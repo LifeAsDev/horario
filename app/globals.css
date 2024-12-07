@@ -34,3 +34,19 @@ button {
 	height: 39px;
 	min-width: 105px;
 }
+
+select {
+	background-color: var(--very-dark-desaturated-blue);
+	padding: 4px 8px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	outline: none;
+}
+
+option {
+	background-color: var(--dark-grayish-blue);
+}
+
+label {
+	text-align: left;
+}

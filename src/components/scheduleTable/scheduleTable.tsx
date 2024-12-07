@@ -5,6 +5,7 @@ import CreateBlockModal, {
 	colors,
 } from "@/src/components/createBlockModal/createBlockModal";
 import DeleteBlockModal from "@/src/components/deleteBlockModal/deleteBlockModal";
+import ScheduleBlocks from "@/src/models/scheduleBlocks";
 
 function formatToTimeString(minutes: number): string {
 	const formattedMinutes = String(minutes).padStart(2, "0");
@@ -119,6 +120,10 @@ export default function ScheduleTable() {
 	const [deletingBlock, setDeletingBlock] = useState(false);
 	const [cellY, setCellY] = useState(0);
 	const [copyColumn, setCopyColumn] = useState<string | boolean>(false);
+	const [selectedLayer, setSelectedLayer] = useState<string>(""); // Estado para la opción seleccionada
+	const [layers, setLayers] = useState<ScheduleBlocks[]>([
+		{ name: "yo", blocks: [] },
+	]);
 
 	const handleMouseDown = (e: React.MouseEvent, block: ScheduleBlock) => {
 		setIsResizing(block.id);
@@ -426,15 +431,35 @@ export default function ScheduleTable() {
 	};
 
 	useEffect(() => {
-		const data = localStorage.getItem("scheduleBlocks");
+		const data = localStorage.getItem("layers");
 		if (data) {
-			setScheduleBlocks(JSON.parse(data));
+			setLayers(JSON.parse(data));
 		}
 	}, []);
 
 	useEffect(() => {
-		localStorage.setItem("scheduleBlocks", JSON.stringify(scheduleBlocks)); // Convertir a string para guardar
+		if (selectedLayer !== "")
+			setScheduleBlocks(
+				layers.filter((item) => item.name === selectedLayer)[0].blocks
+			);
+	}, [selectedLayer]);
+
+	useEffect(() => {
+		localStorage.setItem("scheduleBlocks", JSON.stringify(scheduleBlocks));
+
+		if (selectedLayer !== "") {
+			setLayers((prevLayers) =>
+				prevLayers.map((layer) =>
+					layer.name === selectedLayer
+						? { ...layer, blocks: scheduleBlocks }
+						: layer
+				)
+			);
+		}
 	}, [scheduleBlocks]);
+	useEffect(() => {
+		localStorage.setItem("layers", JSON.stringify(layers));
+	}, [layers]);
 
 	const copyColumnToAnother = (from: string, to: string) => {
 		setScheduleBlocks((prevBlocks) => {
@@ -457,93 +482,112 @@ export default function ScheduleTable() {
 	};
 	return (
 		<main className={styles.main}>
-			{newConfirmBlock && (
-				<CreateBlockModal
-					scheduleBlock={newConfirmBlock}
-					setScheduleBlock={setNewConfirmBlock}
-					createBlock={() => {
-						confirmNewBlock();
-						setNewConfirmBlock(null);
-					}}
-					back={() => {
-						setNewConfirmBlock(null);
-					}}
-				/>
-			)}
-			{editConfirmBlock && (
-				<CreateBlockModal
-					scheduleBlock={editConfirmBlock}
-					setScheduleBlock={setEditConfirmBlock}
-					createBlock={() => {
-						confirmEditBlock();
-						setEditConfirmBlock(null);
-					}}
-					back={() => {
-						setEditConfirmBlock(null);
-					}}
-					mode={"edit"}
-				/>
-			)}
-			{deletingBlock && (
-				<DeleteBlockModal
-					deleteBlock={() => {
-						handleDeleteBlock();
-						setDeleteBlocks(null);
-						setDeletingBlock(false);
-					}}
-					back={() => {
-						setDeletingBlock(false);
-					}}
-					blockCount={deleteBlocks?.length}
-				/>
-			)}
-			<div className={styles.deleteBlockBox}>
-				{deleteBlocks || copyColumn ? (
-					deleteBlocks ? (
-						<>
-							<p className={styles.deleteBlockInfo}>
-								Bloques seleccionados: {deleteBlocks.length}
-							</p>
-							<p onClick={() => setDeleteBlocks(null)}>Cancelar</p>
+			<div className={styles.topBox}>
+				<div className={styles.selectLayerBox}>
+					<label htmlFor="layer">Capa:</label>
+					<select
+						id="layer"
+						value={selectedLayer}
+						onChange={(e) => setSelectedLayer(e.target.value)}
+					>
+						<option key={"Selecciona"} value="" disabled>
+							Selecciona
+						</option>
+						{layers.map((item) => (
+							<option key={item.name}>{item.name}</option>
+						))}
+					</select>
+					<p className={styles.createLayer}>Crear Capa</p>
+				</div>
+				{newConfirmBlock && (
+					<CreateBlockModal
+						scheduleBlock={newConfirmBlock}
+						setScheduleBlock={setNewConfirmBlock}
+						createBlock={() => {
+							confirmNewBlock();
+							setNewConfirmBlock(null);
+						}}
+						back={() => {
+							setNewConfirmBlock(null);
+						}}
+					/>
+				)}
+				{editConfirmBlock && (
+					<CreateBlockModal
+						scheduleBlock={editConfirmBlock}
+						setScheduleBlock={setEditConfirmBlock}
+						createBlock={() => {
+							confirmEditBlock();
+							setEditConfirmBlock(null);
+						}}
+						back={() => {
+							setEditConfirmBlock(null);
+						}}
+						mode={"edit"}
+					/>
+				)}
+				{deletingBlock && (
+					<DeleteBlockModal
+						deleteBlock={() => {
+							handleDeleteBlock();
+							setDeleteBlocks(null);
+							setDeletingBlock(false);
+						}}
+						back={() => {
+							setDeletingBlock(false);
+						}}
+						blockCount={deleteBlocks?.length}
+					/>
+				)}
+				<div className={styles.deleteBlockBox}>
+					{deleteBlocks || copyColumn ? (
+						deleteBlocks ? (
+							<>
+								<p className={styles.deleteBlockInfo}>
+									Bloques seleccionados: {deleteBlocks.length}
+								</p>
+								<p onClick={() => setDeleteBlocks(null)}>Cancelar</p>
+								<p
+									onClick={() => {
+										if (deleteBlocks.length > 0) setDeletingBlock(true);
+										else {
+											setDeleteBlocks(null);
+										}
+									}}
+									className={styles.deleteBlock}
+								>
+									Confirmar
+								</p>
+							</>
+						) : copyColumn === true ? (
+							<>
+								<p onClick={() => setCopyColumn(false)}>Cancelar</p>
+								<p className={styles.blue}>Selecciona una columna</p>
+							</>
+						) : (
+							typeof copyColumn === "string" && (
+								<>
+									<p onClick={() => setCopyColumn(true)}>Atras</p>
+									<p
+										className={styles.blue}
+									>{`Columna Seleccionada: ${copyColumn}`}</p>
+								</>
+							)
+						)
+					) : (
+						<div className={styles.optionsBox}>
+							<p onClick={() => setCopyColumn(true)}>Copiar columna</p>
 							<p
-								onClick={() => {
-									if (deleteBlocks.length > 0) setDeletingBlock(true);
-									else {
-										setDeleteBlocks(null);
-									}
-								}}
+								onClick={() => setDeleteBlocks([])}
 								className={styles.deleteBlock}
 							>
-								Confirmar
+								Borrar bloques
 							</p>
-						</>
-					) : copyColumn === true ? (
-						<>
-							<p onClick={() => setCopyColumn(false)}>Cancelar</p>
-							<p className={styles.blue}>Selecciona una columna</p>
-						</>
-					) : (
-						typeof copyColumn === "string" && (
-							<>
-								<p onClick={() => setCopyColumn(true)}>Atras</p>
-								<p
-									className={styles.blue}
-								>{`Columna Seleccionada: ${copyColumn}`}</p>
-							</>
-						)
-					)
-				) : (
-					<div className={styles.optionsBox}>
-						<p onClick={() => setCopyColumn(true)}>Copiar columna</p>
-						<p
-							onClick={() => setDeleteBlocks([])}
-							className={styles.deleteBlock}
-						>
-							Borrar bloques
-						</p>
-					</div>
-				)}
+						</div>
+					)}
+				</div>
 			</div>
+
 			<div
 				className={`${styles.table} ${
 					isResizing || isDragging ? styles.cursorDown : ""

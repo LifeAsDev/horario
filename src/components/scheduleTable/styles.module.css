@@ -118,7 +118,6 @@
 	flex-direction: row;
 	justify-content: flex-end;
 	gap: 1em;
-	padding-bottom: 0.5em;
 }
 
 .deleteBlockBox p {
@@ -146,4 +145,25 @@
 
 .copyColumnSelected {
 	background-color: rgba(255, 255, 255, 0.25);
+}
+
+.topBox {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	text-align: center;
+	padding-bottom: 0.5em;
+	justify-content: space-between;
+}
+
+.selectLayerBox {
+	display: flex;
+	flex-direction: row;
+	gap: 1em;
+	justify-content: center;
+	align-items: center;
+}
+
+.createLayer {
+	cursor: pointer;
 }
