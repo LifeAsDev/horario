@@ -441,16 +441,22 @@ export default function ScheduleTable() {
 
 	useEffect(() => {
 		const data = localStorage.getItem("layers");
+		const selectedScheduleData = localStorage.getItem("selectedSchedule");
 		if (data) {
 			setLayers(JSON.parse(data));
+		}
+		if (selectedScheduleData) {
+			setSelectedLayer(selectedScheduleData);
 		}
 	}, []);
 
 	useEffect(() => {
-		if (selectedLayer !== "")
+		if (selectedLayer !== "") {
 			setScheduleBlocks(
 				layers.filter((item) => item.name === selectedLayer)[0].blocks
 			);
+			localStorage.setItem("selectedSchedule", selectedLayer);
+		}
 	}, [selectedLayer]);
 
 	useEffect(() => {
@@ -469,6 +475,65 @@ export default function ScheduleTable() {
 	useEffect(() => {
 		localStorage.setItem("layers", JSON.stringify(layers));
 	}, [layers]);
+
+	const postSchedule = async () => {
+		try {
+			const schedule = layers.filter((item) => item.name === selectedLayer)[0];
+			const response = await fetch("/api/schedule", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ name: schedule.name, blocks: schedule.blocks }),
+			});
+
+			if (!response.ok) {
+				throw new Error(`Error al guardar el horario: ${response.statusText}`);
+			}
+			const data = await response.json();
+
+			console.log("Horario guardado o actualizado con éxito:", data);
+			return data;
+		} catch (error) {
+			console.error("Hubo un problema al guardar el horario:", error);
+			throw error; // Propaga el error para manejarlo en otro lugar si es necesario
+		}
+	};
+
+	const getSchedule = async () => {
+		try {
+			const response = await fetch(
+				`/api/schedule?scheduleName=${selectedLayer}`,
+				{
+					method: "GET",
+					headers: {
+						"Content-Type": "application/json",
+					},
+				}
+			);
+
+			if (!response.ok) {
+				throw new Error(`Error al guardar el horario: ${response.statusText}`);
+			}
+
+			const data = await response.json();
+
+			setLayers((prev) => {
+				const newPrev = prev.map((item) => {
+					if (item.name === data.schedule.name) {
+						item.blocks = data.schedule.blocks;
+					}
+					return item;
+				});
+				setScheduleBlocks(
+					newPrev.filter((item) => item.name === selectedLayer)[0].blocks
+				);
+				return newPrev;
+			});
+		} catch (error) {
+			console.error("Hubo un problema al guardar el horario:", error);
+		}
+	};
 
 	const copyColumnToAnother = (from: string, to: string) => {
 		setScheduleBlocks((prevBlocks) => {
@@ -522,6 +587,12 @@ export default function ScheduleTable() {
 						className={styles.deleteBlock}
 					>
 						Borrar Capa
+					</p>
+					<p onClick={() => getSchedule()} className={styles.createLayer}>
+						Cargar
+					</p>
+					<p onClick={() => postSchedule()} className={styles.blue}>
+						Guardar
 					</p>
 				</div>
 				{newConfirmLayer && (
