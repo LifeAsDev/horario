@@ -1,0 +1,40 @@
+.overlay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: rgb(0, 0, 0, 0.5);
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+}
+
+.mainBox {
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.45);
+  background-color: var(--very-dark-desaturated-blue);
+  border-radius: 8px;
+  padding: 1em;
+  gap: 1.5em;
+  text-align: center;
+}
+
+.mainBox h2 {
+  text-align: center;
+  font-size: 1.5em;
+}
+
+.buttonBox {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  user-select: none;
+}
+
+.red {
+  color: var(--primary-red);
+  font-weight: 600;
+}

@@ -7,6 +7,7 @@ import CreateBlockModal, {
 import DeleteBlockModal from "@/src/components/deleteBlockModal/deleteBlockModal";
 import ScheduleBlocks from "@/src/models/scheduleBlocks";
 import CreateLayerModal from "@/src/components/createLayerModal/createLayerModal";
+import DeleteScheduleModal from "@/src/components/deleteScheduleModal/deleteScheduleModal";
 
 function formatToTimeString(minutes: number): string {
 	const formattedMinutes = String(minutes).padStart(2, "0");
@@ -128,6 +129,7 @@ export default function ScheduleTable() {
 	const [newConfirmLayer, setNewConfirmLayer] = useState<ScheduleBlocks | null>(
 		null
 	);
+	const [deleteScheduleConfirm, setDeleteScheduleConfirm] = useState(false);
 
 	const handleMouseDown = (e: React.MouseEvent, block: ScheduleBlock) => {
 		setIsResizing(block.id);
@@ -388,6 +390,7 @@ export default function ScheduleTable() {
 		const newLayer: ScheduleBlocks = newConfirmLayer!;
 
 		setLayers((prev) => [...prev, newLayer]);
+		setSelectedLayer(newLayer.name);
 	};
 	const confirmEditBlock = () => {
 		const updatedBlock: ScheduleBlock = editConfirmBlock!;
@@ -535,6 +538,28 @@ export default function ScheduleTable() {
 		}
 	};
 
+	const deleteSchedule = async (scheduleName: string) => {
+		try {
+			const response = await fetch(
+				`/api/schedule?scheduleName=${scheduleName}`,
+				{
+					method: "DELETE",
+					headers: {
+						"Content-Type": "application/json",
+					},
+				}
+			);
+
+			if (!response.ok) {
+				throw new Error(`Error al guardar el horario: ${response.statusText}`);
+			}
+
+			const data = await response.json();
+		} catch (error) {
+			console.error("Hubo un problema al guardar el horario:", error);
+		}
+	};
+
 	const copyColumnToAnother = (from: string, to: string) => {
 		setScheduleBlocks((prevBlocks) => {
 			// Filtrar los bloques que coinciden con el día de origen
@@ -553,6 +578,14 @@ export default function ScheduleTable() {
 			return [...filteredBlocks, ...newBlocks];
 		});
 		setCopyColumn(false);
+	};
+
+	const confirmDeleteSchedule = () => {
+		deleteSchedule(selectedLayer);
+		setLayers((prev) =>
+			[...prev].filter((item) => item.name !== selectedLayer)
+		);
+		setSelectedLayer("");
 	};
 	return (
 		<main className={styles.main}>
@@ -578,12 +611,7 @@ export default function ScheduleTable() {
 						Crear Capa
 					</p>
 					<p
-						onClick={() => {
-							setLayers((prev) =>
-								[...prev].filter((item) => item.name !== selectedLayer)
-							);
-							setSelectedLayer("");
-						}}
+						onClick={() => setDeleteScheduleConfirm(true)}
 						className={styles.deleteBlock}
 					>
 						Borrar Capa
@@ -595,6 +623,17 @@ export default function ScheduleTable() {
 						Guardar
 					</p>
 				</div>
+
+				{deleteScheduleConfirm && (
+					<DeleteScheduleModal
+						scheduleName={selectedLayer}
+						onDelete={() => {
+							confirmDeleteSchedule();
+							setDeleteScheduleConfirm(false);
+						}}
+						back={() => setDeleteScheduleConfirm(false)}
+					/>
+				)}
 				{newConfirmLayer && (
 					<CreateLayerModal
 						scheduleBlocks={newConfirmLayer}
