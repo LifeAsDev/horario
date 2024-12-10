@@ -112,6 +112,7 @@
 
 .deleteBlock {
 	color: var(--primary-red);
+	cursor: pointer;
 }
 .deleteBlockBox {
 	display: flex;

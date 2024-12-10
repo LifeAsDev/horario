@@ -6,6 +6,7 @@ import CreateBlockModal, {
 } from "@/src/components/createBlockModal/createBlockModal";
 import DeleteBlockModal from "@/src/components/deleteBlockModal/deleteBlockModal";
 import ScheduleBlocks from "@/src/models/scheduleBlocks";
+import CreateLayerModal from "@/src/components/createLayerModal/createLayerModal";
 
 function formatToTimeString(minutes: number): string {
 	const formattedMinutes = String(minutes).padStart(2, "0");
@@ -124,6 +125,9 @@ export default function ScheduleTable() {
 	const [layers, setLayers] = useState<ScheduleBlocks[]>([
 		{ name: "yo", blocks: [] },
 	]);
+	const [newConfirmLayer, setNewConfirmLayer] = useState<ScheduleBlocks | null>(
+		null
+	);
 
 	const handleMouseDown = (e: React.MouseEvent, block: ScheduleBlock) => {
 		setIsResizing(block.id);
@@ -380,6 +384,11 @@ export default function ScheduleTable() {
 		setScheduleBlocks((prevBlocks) => [...prevBlocks, newBlock]);
 	};
 
+	const confirmNewLayer = () => {
+		const newLayer: ScheduleBlocks = newConfirmLayer!;
+
+		setLayers((prev) => [...prev, newLayer]);
+	};
 	const confirmEditBlock = () => {
 		const updatedBlock: ScheduleBlock = editConfirmBlock!;
 
@@ -497,8 +506,42 @@ export default function ScheduleTable() {
 							<option key={item.name}>{item.name}</option>
 						))}
 					</select>
-					<p className={styles.createLayer}>Crear Capa</p>
+					<p
+						onClick={() => setNewConfirmLayer({ name: "", blocks: [] })}
+						className={styles.createLayer}
+					>
+						Crear Capa
+					</p>
+					<p
+						onClick={() => {
+							setLayers((prev) =>
+								[...prev].filter((item) => item.name !== selectedLayer)
+							);
+							setSelectedLayer("");
+						}}
+						className={styles.deleteBlock}
+					>
+						Borrar Capa
+					</p>
 				</div>
+				{newConfirmLayer && (
+					<CreateLayerModal
+						scheduleBlocks={newConfirmLayer}
+						setScheduleBlocks={setNewConfirmLayer}
+						create={() => {
+							if (
+								newConfirmLayer.name !== "" &&
+								!layers.some((obj) => obj.name === newConfirmLayer.name)
+							) {
+								confirmNewLayer();
+								setNewConfirmLayer(null);
+							}
+						}}
+						back={() => {
+							setNewConfirmLayer(null);
+						}}
+					/>
+				)}
 				{newConfirmBlock && (
 					<CreateBlockModal
 						scheduleBlock={newConfirmBlock}
@@ -587,7 +630,6 @@ export default function ScheduleTable() {
 					)}
 				</div>
 			</div>
-
 			<div
 				className={`${styles.table} ${
 					isResizing || isDragging ? styles.cursorDown : ""

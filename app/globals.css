@@ -43,8 +43,8 @@ select {
 	outline: none;
 }
 
-option {
-	background-color: var(--dark-grayish-blue);
+option:disabled {
+	background-color: var(--very-dark-desaturated-blue);
 }
 
 label {
