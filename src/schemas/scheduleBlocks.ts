@@ -1,5 +1,5 @@
 import ScheduleBlocks from "@/src/models/scheduleBlocks";
-import mongoose, { Schema, models } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import { ScheduleBlock } from "@/src/components/scheduleTable/scheduleTable";
 
 const scheduleBlockSchema = new Schema<ScheduleBlock>({
