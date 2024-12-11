@@ -46,12 +46,6 @@ function darkenHexColor(hex?: string, amount?: number): string | undefined {
 	return darkenedHex;
 }
 
-const randomHexColor = () => {
-	const randomColor = Math.floor(Math.random() * 16777215).toString(16);
-	const color = `#${randomColor.padStart(6, "0")}`; // Asegura 6 caracteres
-	return color;
-};
-
 function getTextColor(hex: string): "white" | "black" {
 	// Elimina el '#' si está presente
 	const sanitizedHex = hex.replace("#", "");
